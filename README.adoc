@@ -1,0 +1,31 @@
+= cloudfront
+:!toc-title:
+:!toc-placement:
+:toc:
+
+// TODO: Write a sentence about what this module is for
+<Description here>
+
+toc::[]
+
+== Usage
+Remember to check out the link:variables.tf[*variables*] and link:outputs.tf[*outputs*] to see all options.
+
+// TODO: Add variables to the module example!
+
+[source, hcl]
+----
+module "cloudfront" {
+  source = "github.com/nsbno/terraform-aws-cloudfront?ref=x.y.z"
+
+
+}
+----
+
+
+== Relevant Repositories
+
+You can use these repos together with this repo!
+
+link:https://github.com/nsbno/<relevant-repository>[`nsbno/<relevant-repository>`]::
+<Description here>
