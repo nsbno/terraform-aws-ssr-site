@@ -89,11 +89,11 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = var.viewer_certificate.acm_certificate_arn
-    ssl_support_method       = var.viewer_certificate.ssl_support_method
-    minimum_protocol_version = var.viewer_certificate.minimum_protocol_version
-    certificate_source       = var.viewer_certificate.certificate_source
-    iam_certificate_id       = var.viewer_certificate.iam_certificate_id
+    cloudfront_default_certificate = var.viewer_certificate.cloudfront_default_certificate
+    acm_certificate_arn            = var.viewer_certificate.acm_certificate_arn
+    ssl_support_method             = var.viewer_certificate.ssl_support_method
+    minimum_protocol_version       = var.viewer_certificate.minimum_protocol_version
+    iam_certificate_id             = var.viewer_certificate.iam_certificate_id
   }
 
   # Geo restrictions
