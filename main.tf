@@ -28,19 +28,15 @@ resource "aws_cloudfront_distribution" "this" {
       domain_name = origin.value.domain_name
       origin_id   = origin.value.origin_id
 
-      dynamic "custom_origin_config" {
-        for_each = origin.value.custom_origin_config
-
-        content {
-          http_port              = try(custom_origin_config.value.http_port, 80)
-          https_port             = try(custom_origin_config.value.https_port, 443)
-          origin_protocol_policy = try(custom_origin_config.value.origin_protocol_policy, "https-only")
-          origin_ssl_protocols   = try(custom_origin_config.value.origin_ssl_protocols, ["TLSv1.2"])
-        }
+      custom_origin_config {
+        http_port              = try(origin.value.custom_origin_config.http_port, 80)
+        https_port             = try(origin.value.custom_origin_config.https_port, 443)
+        origin_protocol_policy = try(origin.value.custom_origin_config.origin_protocol_policy, "https-only")
+        origin_ssl_protocols   = try(origin.value.custom_origin_config.origin_ssl_protocols, ["TLSv1.2"])
       }
 
       dynamic "custom_header" {
-        for_each = origin.value.custom_header
+        for_each = origin.value.custom_header != null ? [origin.value.custom_header] : []
 
         content {
           name  = custom_header.value.name
@@ -50,23 +46,18 @@ resource "aws_cloudfront_distribution" "this" {
     }
   }
 
-  dynamic "default_cache_behavior" {
-    for_each = [var.default_cache_behavior]
-    iterator = iter
+  default_cache_behavior {
+    target_origin_id = var.default_cache_behavior.target_origin_id
 
-    content {
-      target_origin_id = iter.value.target_origin_id
-      # Use the cache policy from the variable or fallback to caching disabled
-      cache_policy_id = try(iter.value.cache_policy_id, data.aws_cloudfront_cache_policy.caching_disabled.id)
-      allowed_methods = try(iter.value.allowed_methods, ["GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "DELETE"])
-      cached_methods  = try(iter.value.cached_methods, ["GET", "HEAD"])
+    # Use the cache policy from the variable or fallback to caching disabled
+    cache_policy_id = coalesce(var.default_cache_behavior.cache_policy_id, data.aws_cloudfront_cache_policy.caching_disabled.id)
+    allowed_methods = coalesce(var.default_cache_behavior.allowed_methods, ["GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "DELETE"])
+    cached_methods  = coalesce(var.default_cache_behavior.cached_methods, ["GET", "HEAD"])
 
-      origin_request_policy_id = try(iter.value.origin_request_policy_id, data.aws_cloudfront_origin_request_policy.all_viewer.id)
+    origin_request_policy_id = coalesce(var.default_cache_behavior.origin_request_policy_id, data.aws_cloudfront_origin_request_policy.all_viewer.id)
 
-      viewer_protocol_policy = try(iter.value.viewer_protocol_policy, "redirect-to-https")
-      compress               = try(iter.value.compress, true)
-    }
-
+    viewer_protocol_policy = coalesce(var.default_cache_behavior.viewer_protocol_policy, "redirect-to-https")
+    compress               = coalesce(var.default_cache_behavior.compress, true)
   }
 
   # Static assets cache behavior
@@ -78,13 +69,15 @@ resource "aws_cloudfront_distribution" "this" {
       path_pattern     = iter.value.path_pattern
       target_origin_id = iter.value.target_origin_id
       # Use the cache policy from the variable or fallback to caching optimized
-      cache_policy_id = data.aws_cloudfront_cache_policy.caching_optimized.id
+      cache_policy_id = coalesce(var.default_cache_behavior.cache_policy_id, data.aws_cloudfront_cache_policy.caching_optimized.id)
 
-      allowed_methods = try(iter.value.allowed_methods, ["GET", "HEAD", "OPTIONS"])
-      cached_methods  = try(iter.value.cached_methods, ["GET", "HEAD"])
+      allowed_methods = coalesce(iter.value.allowed_methods, ["GET", "HEAD", "OPTIONS"])
+      cached_methods  = coalesce(iter.value.cached_methods, ["GET", "HEAD"])
 
-      viewer_protocol_policy = try(iter.value.viewer_protocol_policy, "redirect-to-https")
-      compress               = try(iter.value.compress, true)
+      origin_request_policy_id = iter.value.origin_request_policy_id
+
+      viewer_protocol_policy = coalesce(iter.value.viewer_protocol_policy, "redirect-to-https")
+      compress               = coalesce(iter.value.compress, true)
     }
   }
 

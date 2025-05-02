@@ -23,7 +23,7 @@ variable "price_class" {
 variable "is_ipv6_enabled" {
   description = "Whether the IPv6 is enabled for the distribution."
   type        = bool
-  default     = null
+  default     = true
 }
 
 variable "origin" {
@@ -32,10 +32,10 @@ variable "origin" {
     domain_name = string
     origin_id   = string
     custom_origin_config = optional(object({
-      http_port              = optional(number)
-      https_port             = optional(number)
-      origin_protocol_policy = optional(string)
-      origin_ssl_protocols   = optional(list(string))
+      http_port              = number
+      https_port             = number
+      origin_protocol_policy = string
+      origin_ssl_protocols   = list(string)
     }))
     custom_header = optional(object({
       name  = string
@@ -50,9 +50,9 @@ variable "default_cache_behavior" {
   type = object({
     target_origin_id         = string
     cache_policy_id          = optional(string)
+    origin_request_policy_id = optional(string)
     allowed_methods          = optional(list(string))
     cached_methods           = optional(list(string))
-    origin_request_policy_id = optional(string)
     viewer_protocol_policy   = optional(string)
     compress                 = optional(bool)
   })
