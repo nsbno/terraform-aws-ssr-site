@@ -4,7 +4,7 @@ orbs:
   terraform: circleci/terraform@3.0.0
 
 terraform_versions: &terraform_versions
-  - 1.0.11
+  - 1.3.0
   - 1.5.4
 
 terraform_folders: &terraform_folders
