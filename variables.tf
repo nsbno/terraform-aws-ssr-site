@@ -26,29 +26,9 @@ variable "is_ipv6_enabled" {
   default     = true
 }
 
-variable "origin" {
-  description = "The origin configuration for the CloudFront distribution"
-  type = list(object({
-    domain_name = string
-    origin_id   = string
-    custom_origin_config = optional(object({
-      http_port              = number
-      https_port             = number
-      origin_protocol_policy = string
-      origin_ssl_protocols   = list(string)
-    }))
-    custom_header = optional(object({
-      name  = string
-      value = string
-    }))
-  }))
-  default = null
-}
-
 variable "default_cache_behavior" {
   description = "The default cache behavior for the CloudFront distribution"
   type = object({
-    target_origin_id         = string
     cache_policy_id          = optional(string)
     origin_request_policy_id = optional(string)
     allowed_methods          = optional(list(string))
@@ -62,8 +42,6 @@ variable "default_cache_behavior" {
 variable "ordered_cache_behavior" {
   description = "The ordered cache behavior for the CloudFront distribution"
   type = list(object({
-    path_pattern             = string
-    target_origin_id         = string
     cache_policy_id          = optional(string)
     allowed_methods          = optional(list(string))
     cached_methods           = optional(list(string))
@@ -72,21 +50,6 @@ variable "ordered_cache_behavior" {
     compress                 = optional(bool)
   }))
   default = null
-}
-
-variable "viewer_certificate" {
-  description = "The viewer certificate configuration for the CloudFront distribution"
-  type = object({
-    cloudfront_default_certificate = optional(bool)
-    acm_certificate_arn            = optional(string)
-    ssl_support_method             = optional(string)
-    minimum_protocol_version       = optional(string)
-    iam_certificate_id             = optional(string)
-  })
-  default = {
-    cloudfront_default_certificate = true
-    minimum_protocol_version       = "TLSv1.2_2021"
-  }
 }
 
 variable "geo_restriction" {
@@ -111,4 +74,36 @@ variable "route53_hosted_zone_id" {
   type        = string
 
   default = null
+}
+
+variable "alb_domain_name" {
+  description = "The DNS name of the ALB"
+  type        = string
+}
+
+variable "acm_certificate_arn" {
+  description = "The ARN of the ACM certificate for the CloudFront distribution"
+  type        = string
+}
+
+variable "s3_cache_path_pattern" {
+  description = "The path patterns for the S3 cache behavior"
+  type        = list(string)
+}
+
+variable "s3_website_endpoint" {
+  description = "The S3 website endpoint"
+  type        = string
+}
+
+variable "minimum_protocol_version" {
+  description = "The minimum protocol version for the CloudFront distribution"
+  type        = string
+  default     = "TLSv1.2_2021"
+}
+
+variable "ssl_support_method" {
+  description = "The SSL support method for the CloudFront distribution"
+  type        = string
+  default     = "sni-only"
 }
