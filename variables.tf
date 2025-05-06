@@ -94,3 +94,9 @@ variable "ssl_support_method" {
   type        = string
   default     = "sni-only"
 }
+
+variable "certificate_validation_timeout" {
+  description = "How long to wait for the certificate to be issued"
+  type        = optional(string)
+  default     = "45m"
+}
