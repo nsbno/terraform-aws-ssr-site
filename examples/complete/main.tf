@@ -22,7 +22,7 @@ module "metadata" {
 }
 
 module "cloudfront_only" {
-  source = "../../terraform-aws-cloudfront"
+  source = "../../terraform-aws-ssr-site"
 
   providers = {
     aws.certificate_provider = aws.us_east_1
