@@ -85,12 +85,11 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = var.acm_certificate_arn
+    acm_certificate_arn      = aws_acm_certificate.cloudfront.arn
     minimum_protocol_version = var.minimum_protocol_version
     ssl_support_method       = var.ssl_support_method
   }
 
-  # Geo restrictions
   restrictions {
     dynamic "geo_restriction" {
       for_each = [var.geo_restriction]
@@ -106,8 +105,6 @@ resource "aws_cloudfront_distribution" "this" {
 
 # Route53 record for CloudFront
 resource "aws_route53_record" "cloudfront" {
-  count = var.create_route53_record ? 1 : 0
-
   zone_id = var.route53_hosted_zone_id
   name    = var.domain_name
   type    = "A"
@@ -117,4 +114,40 @@ resource "aws_route53_record" "cloudfront" {
     zone_id                = aws_cloudfront_distribution.this.hosted_zone_id
     evaluate_target_health = false
   }
+}
+
+
+# ACM Certificate for CloudFront (must be in us-east-1)
+resource "aws_acm_certificate" "cloudfront" {
+  provider          = aws.us_east_1
+  domain_name       = var.domain_name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# DNS validation for the certificate
+resource "aws_route53_record" "cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  name    = each.value.name
+  type    = each.value.type
+  zone_id = var.route53_hosted_zone_id
+  records = [each.value.record]
+  ttl     = 60
+}
+
+# Certificate validation
+resource "aws_acm_certificate_validation" "cloudfront" {
+  provider                = aws.us_east_1
+  certificate_arn         = aws_acm_certificate.cloudfront.arn
+  validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 }

@@ -63,26 +63,13 @@ variable "geo_restriction" {
   }
 }
 
-variable "create_route53_record" {
-  description = "Whether to create a Route53 record for the CloudFront distribution"
-  type        = bool
-  default     = false
-}
-
 variable "route53_hosted_zone_id" {
   description = "The Route53 hosted zone ID"
   type        = string
-
-  default = null
 }
 
 variable "alb_domain_name" {
   description = "The DNS name of the ALB"
-  type        = string
-}
-
-variable "acm_certificate_arn" {
-  description = "The ARN of the ACM certificate for the CloudFront distribution"
   type        = string
 }
 
