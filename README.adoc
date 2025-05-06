@@ -1,31 +1,55 @@
-= cloudfront
+= SSR Site Hosting
 :!toc-title:
 :!toc-placement:
 :toc:
 
-// TODO: Write a sentence about what this module is for
-<Description here>
+
+Creates the necessary infrastructure for hosting a Server-Side Rendered (SSR) frontend application on AWS using CloudFront.
+
+This includes the provisioning of an ACM certificate and a CloudFront distribution, as well as Route 53 records
 
 toc::[]
 
 == Usage
 Remember to check out the link:variables.tf[*variables*] and link:outputs.tf[*outputs*] to see all options.
 
-// TODO: Add variables to the module example!
-
 [source, hcl]
 ----
 module "cloudfront" {
   source = "github.com/nsbno/terraform-aws-cloudfront?ref=x.y.z"
 
+  providers = {
+    aws.us_east_1 = aws.us_east_1
+  }
 
+  application_name = "infrademo-demo-app"
+  domain_name      = "petstore.infrademo.vydev.io"
+  alb_domain_name  = "lb.infrademo.vydev.io"
+
+  route53_hosted_zone_id = module.metadata.dns.hosted_zone_id
+
+  s3_website_endpoint   = aws_s3_bucket_website_configuration.this.website_endpoint
+  s3_cache_path_pattern = ["/assets/*", "/favicon.ico"]
 }
 ----
+
+== Examples
+See the link:examples/complete/README.adoc[complete example] to see how to use this module
 
 
 == Relevant Repositories
 
 You can use these repos together with this repo!
 
-link:https://github.com/nsbno/<relevant-repository>[`nsbno/<relevant-repository>`]::
-<Description here>
+link:https://github.com/nsbno/terraform-aws-account-metadata[`nsbno/terraform-aws-account-metadata`]::
+Contains metadata about your account, e.g. hosted zone ID to be used with this repo
+
+link:https://github.com/nsbno/terraform-aws-ecs-service[`nsbno/terraform-aws-ecs-service`]::
+Use this module to deploy an ECS service, for example your SSR server
+
+link:https://github.com/nsbno/terraform-provider-static-file-deploy[`nsbno/terraform-provider-static-file-deploy`]::
+Use this provider to deploy and handle static files in S3
+
+link:https://github.com/nsbno/terraform-aws-multi-domain-static-site[`nsbno/terraform-aws-multi-domain-static-site`]::
+Looking to deploy a static website (SPA) like a React app? Use this module
+
