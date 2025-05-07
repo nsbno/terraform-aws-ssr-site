@@ -34,7 +34,7 @@ module "ssr" {
 ----
 
 == Examples
-See the link:examples/complete/README.adoc[complete example] to see how to use this module
+See the link:examples/complete/main.tf[complete example] to see how to use this module
 
 
 == Relevant Repositories
