@@ -21,7 +21,7 @@ resource "aws_cloudfront_distribution" "this" {
   is_ipv6_enabled = var.is_ipv6_enabled
   comment         = "${var.application_name} distribution"
 
-  aliases             = [var.domain_name]
+  aliases             = [var.domain_name, "*.${var.domain_name}"]
   price_class         = var.price_class
   wait_for_deployment = var.wait_for_deployment
 
@@ -102,11 +102,11 @@ resource "aws_cloudfront_distribution" "this" {
   }
 }
 
+resource "aws_route53_record" "cloudfront_alias" {
+  for_each = toset([var.domain_name, "*.${var.domain_name}"])
 
-# Route53 record for CloudFront
-resource "aws_route53_record" "cloudfront" {
   zone_id = var.route53_hosted_zone_id
-  name    = var.domain_name
+  name    = each.value
   type    = "A"
 
   alias {
@@ -116,12 +116,12 @@ resource "aws_route53_record" "cloudfront" {
   }
 }
 
-
 # ACM Certificate for CloudFront (must be in us-east-1)
 resource "aws_acm_certificate" "cloudfront" {
-  provider          = aws.certificate_provider
-  domain_name       = var.domain_name
-  validation_method = "DNS"
+  provider                  = aws.certificate_provider
+  domain_name               = var.domain_name
+  subject_alternative_names = ["*.${var.domain_name}"]
+  validation_method         = "DNS"
 
   lifecycle {
     create_before_destroy = true
@@ -131,17 +131,18 @@ resource "aws_acm_certificate" "cloudfront" {
 # DNS validation for the certificate
 resource "aws_route53_record" "cert_validation" {
   for_each = {
-    for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.resource_record_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
-    }
+      # we get duplicate records for the main domain and the wildcard subdomain, so we combine it to a list and use the first
+    }...
   }
 
-  name    = each.value.name
-  type    = each.value.type
+  name    = each.value[0].name
+  type    = each.value[0].type
   zone_id = var.route53_hosted_zone_id
-  records = [each.value.record]
+  records = [each.value[0].record]
   ttl     = 60
 }
 
