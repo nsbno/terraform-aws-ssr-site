@@ -9,6 +9,12 @@ variable "wait_for_deployment" {
   default     = true
 }
 
+variable "enable_wildcard_domain" {
+  description = "Whether to enable wildcard domain for the CloudFront distribution. Used for preview environments."
+  type        = bool
+  default     = false
+}
+
 variable "domain_name" {
   description = "The domain name for the CloudFront distribution"
   type        = string

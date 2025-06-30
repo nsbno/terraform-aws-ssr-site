@@ -103,7 +103,7 @@ resource "aws_cloudfront_distribution" "this" {
 }
 
 resource "aws_route53_record" "cloudfront_alias" {
-  for_each = toset([var.domain_name, "*.${var.domain_name}"])
+  for_each = var.enable_wildcard_domain ? toset([var.domain_name, "*.${var.domain_name}"]) : [var.domain_name]
 
   zone_id = var.route53_hosted_zone_id
   name    = each.value
@@ -120,7 +120,7 @@ resource "aws_route53_record" "cloudfront_alias" {
 resource "aws_acm_certificate" "cloudfront" {
   provider                  = aws.certificate_provider
   domain_name               = var.domain_name
-  subject_alternative_names = ["*.${var.domain_name}"]
+  subject_alternative_names = var.enable_wildcard_domain ? ["*.${var.domain_name}"] : []
   validation_method         = "DNS"
 
   lifecycle {
