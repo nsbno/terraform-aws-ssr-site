@@ -21,7 +21,7 @@ resource "aws_cloudfront_distribution" "this" {
   is_ipv6_enabled = var.is_ipv6_enabled
   comment         = "${var.application_name} distribution"
 
-  aliases             = [var.domain_name, "*.${var.domain_name}"]
+  aliases             = var.enable_wildcard_domain ? ["*.${var.domain_name}", var.domain_name] : [var.domain_name]
   price_class         = var.price_class
   wait_for_deployment = var.wait_for_deployment
 
@@ -131,19 +131,21 @@ resource "aws_acm_certificate" "cloudfront" {
 # DNS validation for the certificate
 resource "aws_route53_record" "cert_validation" {
   for_each = {
-    for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.resource_record_name => {
+    for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
-      # we get duplicate records for the main domain and the wildcard subdomain, so we combine it to a list and use the first
-    }...
+    }
   }
 
-  name    = each.value[0].name
-  type    = each.value[0].type
-  zone_id = var.route53_hosted_zone_id
-  records = [each.value[0].record]
-  ttl     = 60
+  allow_overwrite = true
+  name            = each.value.name
+  type            = each.value.type
+  zone_id         = var.route53_hosted_zone_id
+  records         = [each.value.record]
+  ttl             = 60
+
+  depends_on = [aws_acm_certificate.cloudfront]
 }
 
 # Certificate validation
