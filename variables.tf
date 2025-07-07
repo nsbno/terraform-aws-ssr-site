@@ -15,6 +15,13 @@ variable "enable_wildcard_domain" {
   default     = false
 }
 
+variable "preview_url_mapper_lambda_arn" {
+  description = "The ARN of the Lambda function to map domain to preview URLs"
+  type        = string
+
+  default = ""
+}
+
 variable "domain_name" {
   description = "The domain name for the CloudFront distribution"
   type        = string

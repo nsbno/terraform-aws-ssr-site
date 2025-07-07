@@ -60,6 +60,15 @@ resource "aws_cloudfront_distribution" "this" {
 
     viewer_protocol_policy = try(var.default_cache_behavior.viewer_protocol_policy, "redirect-to-https")
     compress               = try(var.default_cache_behavior.compress, true)
+
+	dynamic "lambda_function_association" {
+	  for_each   = var.preview_url_mapper_lambda_arn != "" ? [1] : []
+
+	  content {
+		event_type = "origin-request"
+		lambda_arn = var.preview_url_mapper_lambda_arn
+	  }
+	}
   }
 
   # Static assets cache behavior
