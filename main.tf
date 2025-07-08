@@ -12,10 +12,10 @@ data "aws_cloudfront_origin_request_policy" "all_viewer" {
 }
 
 locals {
-  alb_origin_id = "${var.application_name}-alb-origin"
-  s3_origin_id  = "${var.application_name}-s3-origin"
+  alb_origin_id          = "${var.application_name}-alb-origin"
+  s3_origin_id           = "${var.application_name}-s3-origin"
   alternate_domain_names = var.enable_wildcard_domain ? concat(["*.${var.domain_name}"], var.additional_domain_names) : var.additional_domain_names
-  all_domain_names = concat([var.domain_name], var.additional_domain_names)
+  all_domain_names       = concat([var.domain_name], var.additional_domain_names)
 }
 
 resource "aws_cloudfront_distribution" "this" {
@@ -63,14 +63,14 @@ resource "aws_cloudfront_distribution" "this" {
     viewer_protocol_policy = try(var.default_cache_behavior.viewer_protocol_policy, "redirect-to-https")
     compress               = try(var.default_cache_behavior.compress, true)
 
-	dynamic "lambda_function_association" {
-	  for_each   = var.preview_url_mapper_lambda_arn != "" ? [1] : []
+    dynamic "lambda_function_association" {
+      for_each = var.preview_url_mapper_lambda_arn != "" ? [1] : []
 
-	  content {
-		event_type = "origin-request"
-		lambda_arn = var.preview_url_mapper_lambda_arn
-	  }
-	}
+      content {
+        event_type = "origin-request"
+        lambda_arn = var.preview_url_mapper_lambda_arn
+      }
+    }
   }
 
   # Static assets cache behavior
