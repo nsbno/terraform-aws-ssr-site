@@ -114,3 +114,9 @@ variable "certificate_validation_timeout" {
 
   default = "45m"
 }
+
+variable "additional_domain_names" {
+  description = "Accept additional domain names for the SSR site"
+  type = list(string)
+  default = []
+}

@@ -14,6 +14,8 @@ data "aws_cloudfront_origin_request_policy" "all_viewer" {
 locals {
   alb_origin_id = "${var.application_name}-alb-origin"
   s3_origin_id  = "${var.application_name}-s3-origin"
+  alternate_domain_names = var.enable_wildcard_domain ? concat(["*.${var.domain_name}"], var.additional_domain_names) : var.additional_domain_names
+  all_domain_names = concat([var.domain_name], var.additional_domain_names)
 }
 
 resource "aws_cloudfront_distribution" "this" {
@@ -21,7 +23,7 @@ resource "aws_cloudfront_distribution" "this" {
   is_ipv6_enabled = var.is_ipv6_enabled
   comment         = "${var.application_name} distribution"
 
-  aliases             = var.enable_wildcard_domain ? ["*.${var.domain_name}", var.domain_name] : [var.domain_name]
+  aliases             = local.all_domain_names
   price_class         = var.price_class
   wait_for_deployment = var.wait_for_deployment
 
@@ -112,7 +114,7 @@ resource "aws_cloudfront_distribution" "this" {
 }
 
 resource "aws_route53_record" "cloudfront_alias" {
-  for_each = var.enable_wildcard_domain ? toset([var.domain_name, "*.${var.domain_name}"]) : [var.domain_name]
+  for_each = toset(local.all_domain_names)
 
   zone_id = var.route53_hosted_zone_id
   name    = each.value
@@ -129,7 +131,7 @@ resource "aws_route53_record" "cloudfront_alias" {
 resource "aws_acm_certificate" "cloudfront" {
   provider                  = aws.certificate_provider
   domain_name               = var.domain_name
-  subject_alternative_names = var.enable_wildcard_domain ? ["*.${var.domain_name}"] : []
+  subject_alternative_names = local.alternate_domain_names
   validation_method         = "DNS"
 
   lifecycle {
