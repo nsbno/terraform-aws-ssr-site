@@ -15,7 +15,7 @@ locals {
   alb_origin_id          = "${var.application_name}-alb-origin"
   s3_origin_id           = "${var.application_name}-s3-origin"
   alternate_domain_names = var.enable_wildcard_domain ? concat(["*.${var.domain_name}"], var.additional_domain_names) : var.additional_domain_names
-  all_domain_names       = concat([var.domain_name], var.additional_domain_names)
+  all_domain_names       = concat([var.domain_name], local.alternate_domain_names)
 }
 
 resource "aws_cloudfront_distribution" "this" {
