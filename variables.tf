@@ -120,14 +120,3 @@ variable "additional_domain_names" {
   type        = list(string)
   default     = []
 }
-
-variable "aws_region" {
-  description = "AWS region"
-  type        = string
-  default     = "us-east-1"
-
-  validation {
-    condition     = var.aws_region == "us-east-1"
-    error_message = "Only us-east-1 is allowed for this deployment."
-  }
-}
