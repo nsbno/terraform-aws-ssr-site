@@ -1,19 +1,7 @@
-# Provider for us-east-1 (required for CloudFront certificates)
-provider "aws" {
-  alias  = "us_east_1"
-  region = "us-east-1"
-
-  default_tags {
-    tags = {
-      application = "application_name"
-    }
-  }
-}
-
 locals {
-  application_name = "infrademo-demo-app"
-  domain_name      = "petstore.infrademo.vydev.io"
-  alb_domain_name  = "lb.infrademo.vydev.io"
+  service_name    = "infrademo-demo-app"
+  domain_name     = "petstore.infrademo.vydev.io"
+  alb_domain_name = "lb.infrademo.vydev.io"
 }
 
 
@@ -28,14 +16,14 @@ module "cloudfront_only" {
     aws.certificate_provider = aws.us_east_1
   }
 
-  application_name = local.application_name
-  domain_name      = local.domain_name
-  alb_domain_name  = local.alb_domain_name
+  service_name    = local.service_name
+  domain_name     = local.domain_name
+  alb_domain_name = local.alb_domain_name
 
   route53_hosted_zone_id = module.metadata.dns.hosted_zone_id
 
   s3_website_endpoint   = aws_s3_bucket_website_configuration.this.website_endpoint
-  s3_cache_path_pattern = ["/assets/*", "/favicon.ico"]
+  s3_cache_path_pattern = ["/static/*", "/favicon.ico"]
 }
 
 
@@ -43,7 +31,7 @@ module "cloudfront_only" {
 data "aws_caller_identity" "this" {}
 
 resource "aws_s3_bucket" "this" {
-  bucket = "${data.aws_caller_identity.this.account_id}-${local.application_name}-static-files"
+  bucket = "${data.aws_caller_identity.this.account_id}-${local.service_name}-static-files"
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {

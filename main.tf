@@ -12,8 +12,8 @@ data "aws_cloudfront_origin_request_policy" "all_viewer" {
 }
 
 locals {
-  alb_origin_id          = "${var.application_name}-alb-origin"
-  s3_origin_id           = "${var.application_name}-s3-origin"
+  alb_origin_id          = "${var.service_name}-alb-origin"
+  s3_origin_id           = "${var.service_name}-s3-origin"
   alternate_domain_names = var.enable_wildcard_domain ? concat(["*.${var.domain_name}"], var.additional_domain_names) : var.additional_domain_names
   all_domain_names       = concat([var.domain_name], local.alternate_domain_names)
 }
@@ -21,7 +21,7 @@ locals {
 resource "aws_cloudfront_distribution" "this" {
   enabled         = true
   is_ipv6_enabled = var.is_ipv6_enabled
-  comment         = "${var.application_name} distribution"
+  comment         = "${var.service_name} distribution"
 
   aliases             = local.all_domain_names
   price_class         = var.price_class
