@@ -89,6 +89,9 @@ variable "alb_domain_name" {
 variable "s3_cache_path_pattern" {
   description = "The path patterns for the S3 cache behavior"
   type        = list(string)
+
+  # Default for static files for SSR sites accessed by static/<git-sha>/*
+  default = ["/static/*", "/favicon.ico"]
 }
 
 variable "s3_website_endpoint" {
