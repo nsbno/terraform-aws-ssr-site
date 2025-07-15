@@ -1,7 +1,7 @@
 data "aws_caller_identity" "this" {}
 
 resource "aws_s3_bucket" "this" {
-  bucket = "${data.aws_caller_identity.this.account_id}-${var.application_name}-static-files"
+  bucket = "${data.aws_caller_identity.this.account_id}-${var.service_name}-static-files"
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {
@@ -46,7 +46,7 @@ locals {
 resource "aws_ssm_parameter" "ssm_parameters" {
   for_each = local.ssm_parameters
 
-  name  = "/__deployment__/applications/${var.application_name}/${each.key}"
+  name  = "/__deployment__/applications/${var.service_name}/${each.key}"
   type  = "String"
   value = each.value
 }
