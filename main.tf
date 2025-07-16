@@ -169,3 +169,10 @@ resource "aws_acm_certificate_validation" "cloudfront" {
     create = var.certificate_validation_timeout
   }
 }
+
+# For the Pipeline to use the CloudFront domain name
+resource "aws_ssm_parameter" "for_pipeline" {
+  name  = "/__deployment__/applications/${var.service_name}/cloudfront_domain_name"
+  type  = "String"
+  value = var.domain_name
+}
