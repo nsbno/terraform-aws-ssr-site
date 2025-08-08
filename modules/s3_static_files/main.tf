@@ -7,10 +7,10 @@ resource "aws_s3_bucket" "this" {
 resource "aws_s3_bucket_public_access_block" "this" {
   bucket = aws_s3_bucket.this.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 resource "aws_s3_bucket_policy" "this" {
@@ -19,9 +19,11 @@ resource "aws_s3_bucket_policy" "this" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "PublicReadGetObject"
+        Sid       = "AllowCloudFrontOACRead"
         Effect    = "Allow"
-        Principal = "*"
+        Principal = {
+          "AWS": var.oac_principal_arn
+        }
         Action    = "s3:GetObject"
         Resource  = "arn:aws:s3:::${aws_s3_bucket.this.id}/*"
       }

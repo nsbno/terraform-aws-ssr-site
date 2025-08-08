@@ -12,7 +12,8 @@ module "metadata" {
 module "s3_static_files" {
   source = "../../terraform-aws-ssr-site/modules/s3_static_files"
 
-  service_name = local.service_name
+  service_name      = local.service_name
+  oac_principal_arn = module.ssr.oac_principal_arn
 }
 
 module "preview_url_mapper" {
