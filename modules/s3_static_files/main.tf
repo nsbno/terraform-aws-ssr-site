@@ -19,13 +19,13 @@ resource "aws_s3_bucket_policy" "this" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "AllowCloudFrontOACRead"
-        Effect    = "Allow"
+        Sid    = "AllowCloudFrontOACRead"
+        Effect = "Allow"
         Principal = {
-          "AWS": var.oac_principal_arn
+          "AWS" : var.oac_principal_arn
         }
-        Action    = "s3:GetObject"
-        Resource  = "arn:aws:s3:::${aws_s3_bucket.this.id}/*"
+        Action   = "s3:GetObject"
+        Resource = "arn:aws:s3:::${aws_s3_bucket.this.id}/*"
       }
     ]
   })
