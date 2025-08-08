@@ -18,6 +18,14 @@ locals {
   all_domain_names       = concat([var.domain_name], local.alternate_domain_names)
 }
 
+resource "aws_cloudfront_origin_access_control" "this" {
+  name                              = var.service_name
+  description                       = "OAC for ${var.service_name}"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
 resource "aws_cloudfront_distribution" "this" {
   enabled         = true
   is_ipv6_enabled = var.is_ipv6_enabled
@@ -48,6 +56,7 @@ resource "aws_cloudfront_distribution" "this" {
       origin_protocol_policy = "http-only" # S3 website endpoints only support HTTP
       origin_ssl_protocols   = ["TLSv1.2"]
     }
+    origin_access_control_id = aws_cloudfront_origin_access_control.this.id
   }
 
   default_cache_behavior {
