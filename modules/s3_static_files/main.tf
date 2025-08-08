@@ -54,7 +54,7 @@ resource "aws_ssm_parameter" "ssm_parameters" {
 resource "aws_cloudfront_origin_access_control" "this" {
   name                              = "${var.service_name}-oac"
   description                       = "OAC for S3 static files bucket"
-  origin_access_control_origin_type  = "s3"
+  origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
 }
