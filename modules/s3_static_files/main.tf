@@ -22,21 +22,18 @@ resource "aws_s3_bucket_policy" "this" {
         Sid    = "AllowCloudFrontOACRead"
         Effect = "Allow"
         Principal = {
-          "AWS" : var.oac_principal_arn
+          "Service" : "cloudfront.amazonaws.com"
+        }
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.this.account_id}:distribution/${var.}"
+          }
         }
         Action   = "s3:GetObject"
         Resource = "arn:aws:s3:::${aws_s3_bucket.this.id}/*"
       }
     ]
   })
-}
-
-resource "aws_s3_bucket_website_configuration" "this" {
-  bucket = aws_s3_bucket.this.id
-
-  index_document {
-    suffix = "index.html"
-  }
 }
 
 locals {
@@ -51,12 +48,4 @@ resource "aws_ssm_parameter" "ssm_parameters" {
   name  = "/__deployment__/applications/${var.service_name}/${each.key}"
   type  = "String"
   value = each.value
-}
-
-resource "aws_cloudfront_origin_access_control" "this" {
-  name                              = "${var.service_name}-oac"
-  description                       = "OAC for S3 static files bucket"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
 }

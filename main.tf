@@ -13,7 +13,6 @@ data "aws_cloudfront_origin_request_policy" "all_viewer" {
 
 locals {
   alb_origin_id          = "${var.service_name}-alb-origin"
-  s3_origin_id           = "${var.service_name}-s3-origin"
   alternate_domain_names = var.enable_wildcard_domain ? concat(["*.${var.domain_name}"], var.additional_domain_names) : var.additional_domain_names
   all_domain_names       = concat([var.domain_name], local.alternate_domain_names)
 }
@@ -24,6 +23,10 @@ resource "aws_cloudfront_origin_access_control" "this" {
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
+}
+
+data "aws_s3_bucket" "static_files" {
+  bucket = var.s3_bucket_id
 }
 
 resource "aws_cloudfront_distribution" "this" {
@@ -48,14 +51,8 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   origin {
-    domain_name = var.s3_website_endpoint
-    origin_id   = local.s3_origin_id
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "http-only" # S3 website endpoints only support HTTP
-      origin_ssl_protocols   = ["TLSv1.2"]
-    }
+    domain_name              = data.aws_s3_bucket.static_files.bucket_regional_domain_name
+    origin_id                = var.s3_bucket_id
     origin_access_control_id = aws_cloudfront_origin_access_control.this.id
   }
 
@@ -89,7 +86,7 @@ resource "aws_cloudfront_distribution" "this" {
 
     content {
       path_pattern     = iter.value
-      target_origin_id = local.s3_origin_id
+      target_origin_id = var.s3_bucket_id
 
       # Use the cache policy from the variable or fallback to caching optimized
       cache_policy_id = try(var.ordered_cache_behavior.cache_policy_id, data.aws_cloudfront_cache_policy.caching_optimized.id)
