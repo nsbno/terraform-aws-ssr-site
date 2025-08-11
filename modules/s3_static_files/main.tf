@@ -26,7 +26,7 @@ resource "aws_s3_bucket_policy" "this" {
         }
         Condition = {
           StringEquals = {
-            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.this.account_id}:distribution/${var.}"
+            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.this.account_id}:distribution/${var.cloudfront_distribution_id}"
           }
         }
         Action   = "s3:GetObject"
