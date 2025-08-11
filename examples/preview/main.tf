@@ -12,8 +12,9 @@ module "metadata" {
 module "s3_static_files" {
   source = "../../terraform-aws-ssr-site/modules/s3_static_files"
 
-  service_name      = local.service_name
-  oac_principal_arn = module.ssr.oac_principal_arn
+
+  service_name               = local.service_name
+  cloudfront_distribution_id = module.ssr.cloudfront_distribution_id
 }
 
 module "preview_url_mapper" {
@@ -43,7 +44,6 @@ module "ssr" {
   alb_domain_name = local.alb_domain_name
 
   route53_hosted_zone_id = module.metadata.dns.hosted_zone_id
-
-  s3_website_endpoint = module.s3_static_files.website_endpoint
+  s3_bucket_id           = module.s3_static_files.bucket_id
 }
 
