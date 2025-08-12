@@ -54,3 +54,16 @@ Use this module to deploy an ECS service, for example your SSR server
 link:https://github.com/nsbno/terraform-aws-multi-domain-static-site[`nsbno/terraform-aws-multi-domain-static-site`]::
 Looking to deploy a static website (SPA) like a React app? Use this module
 
+== CloudFront Origin Access Control (OAC)
+
+If you want to restrict access to your S3 bucket so only CloudFront can read objects, use the CloudFront Origin Access Control (OAC) Principal ARN in your S3 bucket policy:
+
+[source, hcl]
+----
+Principal = {
+  "AWS": module.ssr.oac_principal_arn
+}
+----
+
+Refer to the output `oac_principal_arn` for the correct value. The OAC resource is created and managed by the SSR module, and its ARN should be used in your S3 bucket policy for secure access
+

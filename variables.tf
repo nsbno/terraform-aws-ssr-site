@@ -94,8 +94,8 @@ variable "s3_cache_path_pattern" {
   default = ["/static/*", "/favicon.ico"]
 }
 
-variable "s3_website_endpoint" {
-  description = "The S3 website endpoint"
+variable "s3_bucket_id" {
+  description = "The S3 bucket ID for the static files"
   type        = string
 }
 
