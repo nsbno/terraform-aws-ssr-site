@@ -15,10 +15,11 @@ Remember to check out the link:variables.tf[*variables*] and link:outputs.tf[*ou
 
 [source, hcl]
 ----
-module "s3_static_files" {
+module "s3_website_bucket" {
     source = "github.com/nsbno/terraform-aws-ssr-site//modules/s3_static_files?ref=x.y.z"
 
-    service_name     = "infrademo-demo-app"
+    service_name               = "infrademo-demo-app"
+    cloudfront_distribution_id = module.ssr.cloudfront_distribution_id
 }
 
 module "ssr" {
@@ -34,7 +35,7 @@ module "ssr" {
 
   route53_hosted_zone_id = module.metadata.dns.hosted_zone_id
 
-  s3_website_endpoint   = module.s3_static_files.website_endpoint
+  s3_bucket_id = module.s3_website_bucket.bucket_id
 }
 ----
 == Examples
