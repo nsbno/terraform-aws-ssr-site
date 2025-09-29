@@ -13,28 +13,9 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_policy" "this" {
-  bucket = aws_s3_bucket.this.id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "AllowCloudFrontOACRead"
-        Effect = "Allow"
-        Principal = {
-          "Service" : "cloudfront.amazonaws.com"
-        }
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.this.account_id}:distribution/${var.cloudfront_distribution_id}"
-          }
-        }
-        Action   = "s3:GetObject"
-        Resource = "arn:aws:s3:::${aws_s3_bucket.this.id}/*"
-      }
-    ]
-  })
-}
+# NOTE: Bucket policy that grants CloudFront Origin Access should be created by the owning
+# module that manages CloudFront (the `ssr` module). This keeps module ownership unidirectional
+# and avoids circular dependencies where both modules reference each other.
 
 locals {
   ssm_parameters = {
