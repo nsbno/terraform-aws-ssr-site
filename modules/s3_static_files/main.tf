@@ -13,10 +13,6 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = true
 }
 
-# NOTE: Bucket policy that grants CloudFront Origin Access should be created by the owning
-# module that manages CloudFront (the `ssr` module). This keeps module ownership unidirectional
-# and avoids circular dependencies where both modules reference each other.
-
 locals {
   ssm_parameters = {
     static_files_bucket_name = aws_s3_bucket.this.id
