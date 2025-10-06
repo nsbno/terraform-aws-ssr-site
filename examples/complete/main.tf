@@ -12,8 +12,7 @@ module "metadata" {
 module "s3_static_files" {
   source = "../../terraform-aws-ssr-site/modules/s3_static_files"
 
-  service_name               = local.service_name
-  cloudfront_distribution_id = module.ssr.cloudfront_distribution_id
+  service_name = local.service_name
 }
 
 module "ssr" {

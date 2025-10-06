@@ -19,7 +19,6 @@ module "s3_website_bucket" {
     source = "github.com/nsbno/terraform-aws-ssr-site//modules/s3_static_files?ref=x.y.z"
 
     service_name               = "infrademo-demo-app"
-    cloudfront_distribution_id = module.ssr.cloudfront_distribution_id
 }
 
 module "ssr" {

@@ -182,3 +182,31 @@ resource "aws_ssm_parameter" "for_pipeline" {
   type  = "String"
   value = var.domain_name
 }
+
+# Add S3 bucket policy allowing CloudFront distribution
+data "aws_caller_identity" "this" {}
+
+resource "aws_s3_bucket_policy" "for_cloudfront" {
+  count  = var.s3_bucket_id != "" ? 1 : 0
+  bucket = var.s3_bucket_id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontRead"
+        Effect = "Allow"
+        Principal = {
+          "Service" : "cloudfront.amazonaws.com"
+        }
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" : "arn:aws:cloudfront::${data.aws_caller_identity.this.account_id}:distribution/${aws_cloudfront_distribution.this.id}"
+          }
+        }
+        Action   = "s3:GetObject"
+        Resource = "arn:aws:s3:::${var.s3_bucket_id}/*"
+      }
+    ]
+  })
+}
