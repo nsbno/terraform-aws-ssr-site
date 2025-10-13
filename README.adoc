@@ -6,8 +6,17 @@
 
 Creates the necessary infrastructure for hosting a Server-Side Rendered (SSR) frontend application on AWS using CloudFront.
 
-This includes the provisioning of a S3 bucket for static files, an ACM certificate and a CloudFront distribution,
-as well as Route 53 records
+image::./terraform-aws-ssr.svg[alt="Module"]
+
+The module sets up:
+
+- An ACM certificate in us-east-1 for the domain
+- A Route 53 record for your domain pointing to the CloudFront distribution
+- A CloudFront distribution configured for SSR
+    * Origin and behavior for SSR website (S3 and ALB)
+- (Optional, but default) An S3 bucket for storing static files
+
+Note: This module does not create the Application Load Balancer (ALB) itself.
 
 toc::[]
 
