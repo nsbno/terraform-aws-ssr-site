@@ -52,7 +52,7 @@ resource "aws_cloudfront_distribution" "this" {
 
   origin {
     domain_name              = data.aws_s3_bucket.static_files.bucket_regional_domain_name
-    origin_id                = data.aws_s3_bucket.static_files.id
+    origin_id                = var.s3_bucket_id
     origin_access_control_id = aws_cloudfront_origin_access_control.this.id
   }
 
