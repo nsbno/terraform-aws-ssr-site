@@ -25,8 +25,12 @@ resource "aws_cloudfront_origin_access_control" "this" {
   signing_protocol                  = "sigv4"
 }
 
+locals {
+  s3_bucket_id_to_use = var.external_s3_bucket_id != "" ? var.external_s3_bucket_id : aws_s3_bucket.this[0].id
+}
+
 data "aws_s3_bucket" "static_files" {
-  bucket = var.s3_bucket_id
+  bucket = local.s3_bucket_id_to_use
 }
 
 resource "aws_cloudfront_distribution" "this" {
@@ -52,7 +56,7 @@ resource "aws_cloudfront_distribution" "this" {
 
   origin {
     domain_name              = data.aws_s3_bucket.static_files.bucket_regional_domain_name
-    origin_id                = var.s3_bucket_id
+    origin_id                = data.aws_s3_bucket.static_files.id
     origin_access_control_id = aws_cloudfront_origin_access_control.this.id
   }
 
@@ -86,7 +90,7 @@ resource "aws_cloudfront_distribution" "this" {
 
     content {
       path_pattern     = iter.value
-      target_origin_id = var.s3_bucket_id
+      target_origin_id = data.aws_s3_bucket.static_files.id
 
       # Use the cache policy from the variable or fallback to caching optimized
       cache_policy_id = try(var.ordered_cache_behavior.cache_policy_id, data.aws_cloudfront_cache_policy.caching_optimized.id)
@@ -184,11 +188,30 @@ resource "aws_ssm_parameter" "for_pipeline" {
 }
 
 # Add S3 bucket policy allowing CloudFront distribution
+# Default create a static files bucket if no external bucket is provided
 data "aws_caller_identity" "this" {}
 
+resource "aws_s3_bucket" "this" {
+  count = var.external_s3_bucket_id != "" ? 0 : 1
+
+  bucket = "${data.aws_caller_identity.this.account_id}-${var.service_name}-static-files"
+}
+
+resource "aws_s3_bucket_public_access_block" "this" {
+  count = var.external_s3_bucket_id != "" ? 0 : 1
+
+  bucket = data.aws_s3_bucket.static_files.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 resource "aws_s3_bucket_policy" "for_cloudfront" {
-  count  = var.s3_bucket_id != "" ? 1 : 0
-  bucket = var.s3_bucket_id
+  count = var.external_s3_bucket_id != "" ? 0 : 1
+
+  bucket = data.aws_s3_bucket.static_files.id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -205,8 +228,18 @@ resource "aws_s3_bucket_policy" "for_cloudfront" {
           }
         }
         Action   = "s3:GetObject"
-        Resource = "arn:aws:s3:::${var.s3_bucket_id}/*"
+        Resource = "arn:aws:s3:::${data.aws_s3_bucket.static_files.id}/*"
       }
     ]
   })
+}
+
+# Needed for the deployment pipeline to know which bucket to upload static files to for SSR sites
+resource "aws_ssm_parameter" "bucket_name" {
+  name  = "/__deployment__/applications/${var.service_name}/static_files_bucket_name"
+  type  = "String"
+  value = data.aws_s3_bucket.static_files.id
+
+  # overwrite, in case a external bucket is already configured with this parameter
+  overwrite = true
 }

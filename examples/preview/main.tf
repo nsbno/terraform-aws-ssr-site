@@ -9,13 +9,6 @@ module "metadata" {
   source = "github.com/nsbno/terraform-aws-account-metadata?ref=x.y.z"
 }
 
-module "s3_static_files" {
-  source = "../../terraform-aws-ssr-site/modules/s3_static_files"
-
-
-  service_name = local.service_name
-}
-
 module "preview_url_mapper" {
   count  = var.environment == "test" ? 1 : 0
   source = "github.com/nsbno/terraform-aws-preview-url?ref=x.y.z"
@@ -43,6 +36,8 @@ module "ssr" {
   alb_domain_name = local.alb_domain_name
 
   route53_hosted_zone_id = module.metadata.dns.hosted_zone_id
-  s3_bucket_id           = module.s3_static_files.bucket_id
+
+  # Default is to create a new bucket, if you already have a bucket, use this instead
+  # external_s3_bucket_id = aws_s3_bucket.existing.id # Uncomment this line to use an existing bucket
 }
 

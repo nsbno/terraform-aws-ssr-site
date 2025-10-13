@@ -94,9 +94,10 @@ variable "s3_cache_path_pattern" {
   default = ["/static/*", "/favicon.ico"]
 }
 
-variable "s3_bucket_id" {
+variable "external_s3_bucket_id" {
   description = "The S3 bucket ID for the static files"
   type        = string
+  default     = ""
 }
 
 variable "minimum_protocol_version" {
