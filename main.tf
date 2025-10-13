@@ -25,12 +25,8 @@ resource "aws_cloudfront_origin_access_control" "this" {
   signing_protocol                  = "sigv4"
 }
 
-locals {
-  s3_bucket_id_to_use = var.external_s3_bucket_id != "" ? var.external_s3_bucket_id : aws_s3_bucket.this[0].id
-}
-
 data "aws_s3_bucket" "static_files" {
-  bucket = local.s3_bucket_id_to_use
+  bucket = var.external_s3_bucket_id != "" ? var.external_s3_bucket_id : aws_s3_bucket.this[0].id
 }
 
 resource "aws_cloudfront_distribution" "this" {
