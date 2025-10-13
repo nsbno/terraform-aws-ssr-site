@@ -6,7 +6,8 @@
 
 Creates the necessary infrastructure for hosting a Server-Side Rendered (SSR) frontend application on AWS using CloudFront.
 
-This includes the provisioning of an ACM certificate and a CloudFront distribution, as well as Route 53 records
+This includes the provisioning of a S3 bucket for static files, an ACM certificate and a CloudFront distribution,
+as well as Route 53 records
 
 toc::[]
 
@@ -15,12 +16,6 @@ Remember to check out the link:variables.tf[*variables*] and link:outputs.tf[*ou
 
 [source, hcl]
 ----
-module "s3_website_bucket" {
-    source = "github.com/nsbno/terraform-aws-ssr-site//modules/s3_static_files?ref=x.y.z"
-
-    service_name               = "infrademo-demo-app"
-}
-
 module "ssr" {
   source = "github.com/nsbno/terraform-aws-ssr-site?ref=x.y.z"
 
@@ -34,7 +29,8 @@ module "ssr" {
 
   route53_hosted_zone_id = module.metadata.dns.hosted_zone_id
 
-  s3_bucket_id = module.s3_website_bucket.bucket_id
+  # Default is to create a new bucket, if you already have a bucket, use this instead
+  # external_s3_bucket_id = aws_s3_bucket.existing.id # Uncomment this line to use an existing bucket
 }
 ----
 == Examples
