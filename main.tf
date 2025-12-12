@@ -190,7 +190,8 @@ data "aws_caller_identity" "this" {}
 resource "aws_s3_bucket" "this" {
   count = var.external_s3_bucket_id != "" ? 0 : 1
 
-  bucket = "${data.aws_caller_identity.this.account_id}-${var.service_name}-static-files"
+  # Max length of S3 bucket is 63 characters
+  bucket = "${data.aws_caller_identity.this.account_id}-${substr(var.service_name, 0, 46)}-sf"
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {

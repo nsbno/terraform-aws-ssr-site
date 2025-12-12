@@ -1,5 +1,5 @@
 variable "service_name" {
-  description = "The name of the service"
+  description = "The name of the service. Should correspond to ECS service name."
   type        = string
 }
 
