@@ -48,6 +48,14 @@ resource "aws_cloudfront_distribution" "this" {
       origin_protocol_policy = "https-only"
       origin_ssl_protocols   = ["TLSv1.2"]
     }
+    dynamic "custom_header" {
+      for_each = var.cloudfront_origin_custom_header
+
+      content {
+        name  = custom_header.value.name
+        value = custom_header.value.value
+      }
+    }
   }
 
   origin {
