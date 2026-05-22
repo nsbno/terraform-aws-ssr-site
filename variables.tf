@@ -124,3 +124,9 @@ variable "additional_domain_names" {
   type        = list(string)
   default     = []
 }
+
+variable "cloudfront_origin_custom_header" {
+  description = "Custom headers to pass to the CloudFront origin"
+  type        = map(string)
+  default     = {}
+}
