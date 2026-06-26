@@ -38,22 +38,50 @@ resource "aws_cloudfront_distribution" "this" {
   price_class         = var.price_class
   wait_for_deployment = var.wait_for_deployment
 
-  origin {
-    domain_name = var.alb_domain_name
-    origin_id   = local.alb_origin_id
+  dynamic "origin" { // VPC origin to the ALB
+    for_each = var.alb_vpc_origin != null ? [var.alb_vpc_origin] : []
 
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "https-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
+    content {
+      origin_id = local.alb_origin_id
+      domain_name = origin.value.dns_name
+
+      dynamic "custom_header" {
+        for_each = origin.value.custom_headers
+
+        content {
+          name  = custom_header.key
+          value = custom_header.value
+        }
+      }
+
+      vpc_origin_config {
+        vpc_origin_id = origin.value.id
+        origin_keepalive_timeout = coalesce(origin.value.keep_alive_timeout_seconds, 5)
+        origin_read_timeout = coalesce(origin.value.read_timeout_seconds, 30)
+      }
     }
-    dynamic "custom_header" {
-      for_each = var.cloudfront_origin_custom_header
+  }
 
-      content {
-        name  = custom_header.key
-        value = custom_header.value
+  dynamic "origin" { // Origin directly to the ALB's domain name
+    for_each = var.alb_domain_name != null ? [var.alb_domain_name] : []
+
+    content {
+      domain_name = origin.value
+      origin_id   = local.alb_origin_id
+
+      custom_origin_config {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = "https-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
+      dynamic "custom_header" {
+        for_each = var.cloudfront_origin_custom_header
+
+        content {
+          name  = custom_header.key
+          value = custom_header.value
+        }
       }
     }
   }
