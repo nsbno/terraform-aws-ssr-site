@@ -1,0 +1,13 @@
+name: 'Validate'
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  validate-module:
+    uses: nsbno/platform-actions/.github/workflows/lint.terraform.yml@v2
+    with:
+      terraform-version: '1.3.0'
+      run-validate: false

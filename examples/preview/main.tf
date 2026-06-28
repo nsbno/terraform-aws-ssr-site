@@ -6,12 +6,12 @@ locals {
 
 
 module "metadata" {
-  source = "github.com/nsbno/terraform-aws-account-metadata?ref=x.y.z"
+  source = "github.com/nsbno/terraform-aws-account-metadata?ref=1.0.0"
 }
 
 module "preview_url_mapper" {
   count  = var.environment == "test" ? 1 : 0
-  source = "github.com/nsbno/terraform-aws-preview-url?ref=x.y.z"
+  source = "github.com/nsbno/terraform-aws-preview-url?ref=1.0.0"
 
   providers = {
     aws.us_east_1 = aws.us_east_1
@@ -21,7 +21,7 @@ module "preview_url_mapper" {
 }
 
 module "ssr" {
-  source = "../../terraform-aws-ssr-site"
+  source = "../../"
 
   providers = {
     aws.certificate_provider = aws.us_east_1

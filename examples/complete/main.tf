@@ -6,11 +6,11 @@ locals {
 
 
 module "metadata" {
-  source = "github.com/nsbno/terraform-aws-account-metadata?ref=x.y.z"
+  source = "github.com/nsbno/terraform-aws-account-metadata?ref=1.0.0"
 }
 
 module "ssr" {
-  source = "../../terraform-aws-ssr-site"
+  source = "../../"
 
   providers = {
     aws.certificate_provider = aws.us_east_1
