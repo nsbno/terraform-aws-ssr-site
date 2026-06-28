@@ -171,7 +171,7 @@ resource "aws_route53_record" "cloudfront_alias" {
 
 # ACM Certificate for CloudFront (must be in us-east-1)
 resource "aws_acm_certificate" "cloudfront" {
-  provider                  = aws.us_east_1
+  region                    = "us-east-1"
   domain_name               = var.domain_name
   subject_alternative_names = local.alternate_domain_names
   validation_method         = "DNS"
@@ -203,7 +203,7 @@ resource "aws_route53_record" "cert_validation" {
 
 # Certificate validation
 resource "aws_acm_certificate_validation" "cloudfront" {
-  provider                = aws.us_east_1
+  region                  = "us-east-1"
   certificate_arn         = aws_acm_certificate.cloudfront.arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 
