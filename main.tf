@@ -42,7 +42,7 @@ resource "aws_cloudfront_distribution" "this" {
     for_each = var.alb_vpc_origin != null ? [var.alb_vpc_origin] : []
 
     content {
-      origin_id = local.alb_origin_id
+      origin_id   = local.alb_origin_id
       domain_name = origin.value.dns_name
 
       dynamic "custom_header" {
@@ -55,9 +55,9 @@ resource "aws_cloudfront_distribution" "this" {
       }
 
       vpc_origin_config {
-        vpc_origin_id = origin.value.id
+        vpc_origin_id            = origin.value.id
         origin_keepalive_timeout = coalesce(origin.value.keep_alive_timeout_seconds, 5)
-        origin_read_timeout = coalesce(origin.value.read_timeout_seconds, 30)
+        origin_read_timeout      = coalesce(origin.value.read_timeout_seconds, 30)
       }
     }
   }

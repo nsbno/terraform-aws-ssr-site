@@ -14,6 +14,6 @@ output "cloudfront_distribution_domain_name" {
 }
 
 output "certificate_validation_dns_records" {
-  value = [for record in aws_route53_record.cert_validation : record.fqdn]
+  value       = [for record in aws_route53_record.cert_validation : record.fqdn]
   description = "Route53 records for the doing DNS certificate validation of variable `domain_name`"
 }
