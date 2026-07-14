@@ -38,6 +38,8 @@ resource "aws_cloudfront_distribution" "this" {
   price_class         = var.price_class
   wait_for_deployment = var.wait_for_deployment
 
+  web_acl_id = var.web_acl_id
+
   dynamic "origin" { // VPC origin to the ALB
     for_each = var.alb_vpc_origin != null ? [var.alb_vpc_origin] : []
 
