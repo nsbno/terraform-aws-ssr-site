@@ -146,3 +146,9 @@ variable "cloudfront_origin_custom_header" {
   type        = map(string)
   default     = {}
 }
+
+variable "web_acl_id" {
+  description = "The ARN of the AWS WAF web ACL to associate with the CloudFront distribution"
+  type        = string
+  default     = null
+}
